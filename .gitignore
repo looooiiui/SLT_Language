@@ -1,0 +1,18 @@
+# CMake
+build/
+CMakeCache.txt
+CMakeFiles/
+install_manifest.txt
+
+# VSCode
+.vscode/
+
+# 编译产物
+*.exe
+*.obj
+*.o
+*.log
+
+# 系统
+.DS_Store
+Thumbs.db
