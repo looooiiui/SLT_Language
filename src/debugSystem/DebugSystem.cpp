@@ -30,29 +30,41 @@ SltDebugSystem* SltDebugSystem::GetInstance() {
 }
 
 /** 设置调试系统是否启用 */
+/** 设置调试系统整体可用性 */
 void SltDebugSystem::SetDebugSystemEnable(bool enable){
     m_bDebugSystemEnable = enable;
 }
+/** 设置调试系统控制台输出的可用性，当然不影响日志输出 */
 void SltDebugSystem::SetDebugSystemConsoleEnable(bool enable){
     m_bDebugSystemConsoleEnable = enable;
 }
+/** 设置调试控制台的文件系统的可用性，目前没有实装 */
 void SltDebugSystem::SetDebugSystemFileEnable(bool enable){
     m_bDebugSystemFileEnable = enable;
 }
+/** 控制调试系统是否允许被暂停 */
 void SltDebugSystem::SetDebugSystemConsolePauseEnable(bool enable){
     m_bDebugSystemConsolePauseEnable = enable;
 }
+/** 控制台调试系统普通日志是否输出 */
 void SltDebugSystem::SetDebugSystemLogKindEnable(bool enable) {
     m_bDebugSystemLogEnable = enable;
 }
+/** 控制调试系统调试日志是否输出 */
 void SltDebugSystem::SetDebugSystemDebugKindEnable(bool enable) {
     m_bDebugSystemDebugEnable = enable;
 }
+/** 控制调试系统警告日志是否输出*/
 void SltDebugSystem::SetDebugSystemWarningKindEnable(bool enable) {
     m_bDebugSystemWarningEnable = enable;
 }
+/** 控制调试系统错误日志是否输出: 注意，系统手动停止不受影响 */
 void SltDebugSystem::SetDebugSystemErrorKindEnable(bool enable) {
     m_bDebugSystemErrorEnable = enable;
+}
+/** 控制日志是否可用被写入文件 */
+void SltDebugSystem::SetDebugSystemLogWriteEnable(bool enable){
+    m_bDebugSystemLogWriteEnable = enable;
 }
 
 /** 调试系统自销毁 */
@@ -100,6 +112,10 @@ std::filesystem::path GetExeDir(){
 
 /** 日志写入系统 */
 void SltDebugSystem::DebugSystemLogWrite(const std::string& logMessage){
+    /** 先检测日志是不是可写状态 */
+    if (!m_bDebugSystemLogWriteEnable){
+        return;
+    }
     /** CMake 项目获得路径为根目录路径 */
     std::filesystem::path currentDir = GetExeDir();
     std::filesystem::path logOutDir = currentDir / DEBUG_SYSTEM_LOG_DIR;
@@ -129,8 +145,14 @@ void SltDebugSystem::DebugSystemConsolePauseRun() {
     this->DebugSystemConsoleWrite("调试系统", "调试系统控制台运行中...", DebugSystemKind::DEBUG_SYSTEM_LOG);
 }
 
-/** 调试系统控制台日志输出+日志处理流程 */
-void SltDebugSystem::DebugSystemConsoleWrite(const std::string& moduleName, const std::string& logMessage, DebugSystemKind logKind) {
+/**  调试系统控制台日志输出+日志处理流程
+ * 最后一项用于确认报错是否关闭程序 */
+void SltDebugSystem::DebugSystemConsoleWrite(
+    const std::string& moduleName, 
+    const std::string& logMessage, 
+    DebugSystemKind logKind,
+    bool errorDown
+) {
     std::lock_guard<std::mutex> lock(m_minstanceMtx);
     /** 调试系统销毁状态则停止运行 */
     if (m_bDebugSystemShutdown){
@@ -176,12 +198,12 @@ void SltDebugSystem::DebugSystemConsoleWrite(const std::string& moduleName, cons
     }
     // 检测VT是否启用，如果启用则使用颜色输出，否则不使用颜色输出
     if (this->m_bConsoleVTEnabled) {
-            debugOutput += colorCode;
+        debugOutput += colorCode;
     }
     debugOutput += outModuleName;
     // 尾部中止颜色，防止控制台后文全部变色
     if (this->m_bConsoleVTEnabled) {
-            debugOutput += SLT_COLOR_RESET;
+        debugOutput += SLT_COLOR_RESET;
     }
     debugOutput += logMessage;
 
@@ -193,6 +215,12 @@ void SltDebugSystem::DebugSystemConsoleWrite(const std::string& moduleName, cons
     /** 控制台输出 */
     if (this->m_bDebugSystemConsoleEnable && isOutput) {
         std::cout << debugOutput << std::endl;
+    }
+
+    /** 检查是否关闭程序 */
+    if (logKind == DebugSystemKind::DEBUG_SYSTEM_ERROR && errorDown){
+        /** 关闭程序 */
+        std::exit(EXIT_FAILURE);
     }
 }
 
@@ -273,6 +301,7 @@ SltDebugSystem::SltDebugSystem() {
     this->m_bDebugSystemWarningEnable       = true;
     this->m_bDebugSystemErrorEnable         = true;
     this->m_bDebugSystemShutdown            = false;
+    this->m_bDebugSystemLogWriteEnable      = true;
     /** 初始化调试系统状态 */
     this->m_bConsoleVTEnabled = this->TryEnableVT();
     this->WindowsCMDConsoleUTF8();

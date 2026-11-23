@@ -21,6 +21,8 @@ public:
     /** 最后获得格式化的字符串 */
     template<typename... Args>
     static std::string MakeFormatString(Args&&... args);
+    /** 将特殊字符转化为可以输出的特殊字符 */
+    static std::string MakeOutPutChar(unsigned char normalChar);
 };
 
 inline void SltStream::stringFormat(std::ostringstream& oss){

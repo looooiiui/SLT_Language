@@ -1,9 +1,3 @@
-#pragma once
-#ifndef DEBUG_SYSTEM_H
-#define DEBUG_SYSTEM_H
-#define DEBUG_SYSTEM_VERSION "1.0.0"
-#endif
-
 /** 这里是调试系统的控制台颜色 */
 #ifndef DEBUG_SYSTEM_COLOR
 #define DEBUG_SYSTEM_COLOR
@@ -21,6 +15,11 @@
 #define DEBUG_SYSTEM_LOG_DIR "logs"
 #define DEBUG_SYSTEM_LOG_NAME "logs.txt"
 #endif
+
+/** 调试系统宏定义 */
+#ifndef DEBUG_SYSTEM_H
+#define DEBUG_SYSTEM_H
+#define DEBUG_SYSTEM_VERSION "1.0.0"
 
 /** 系统头文件 */
 #include <string>
@@ -46,6 +45,7 @@ private:
 
     /** 调试系统各项属性的开关 */
     bool m_bDebugSystemEnable;              // 调试系统是否启用
+    bool m_bDebugSystemLogWriteEnable;      // 调试系统日志是否写入文件
     bool m_bDebugSystemLogEnable;           // 调试系统普通日志是否启用
     bool m_bDebugSystemDebugEnable;         // 调试系统调试日志是否启用
     bool m_bDebugSystemWarningEnable;       // 调试系统警告日志是否启用
@@ -79,6 +79,7 @@ public:
     void SetDebugSystemConsoleEnable(bool enable);
     void SetDebugSystemFileEnable(bool enable);
     void SetDebugSystemConsolePauseEnable(bool enable);
+    void SetDebugSystemLogWriteEnable(bool enable);
     /** 调试系统各个子模块 */
     void SetDebugSystemLogKindEnable(bool enable);
     void SetDebugSystemDebugKindEnable(bool enable);
@@ -95,7 +96,13 @@ public:
     /** 调试系统各个系统运行函数 */
     void DebugSystemRun();
 
-    void DebugSystemConsoleWrite(const std::string& moduleName, const std::string& logMessage, DebugSystemKind logKind = DebugSystemKind::DEBUG_SYSTEM_DEBUG);
+    /** 最后一项是当前报错完后是否关闭程序 */
+    void DebugSystemConsoleWrite(
+        const std::string& moduleName, 
+        const std::string& logMessage, 
+        DebugSystemKind logKind = DebugSystemKind::DEBUG_SYSTEM_DEBUG,
+        bool errorDown = false
+    );
     ///** 调试系统字符串相加模板*/
     //template <typename... Args>
     //void DebugSystemConsoleWrite(const std::string& moduleName, DebugSystemKind logKind, Args&&... Args);
@@ -107,3 +114,5 @@ public:
     void DebugSystemDestroy();
     
 };
+
+#endif

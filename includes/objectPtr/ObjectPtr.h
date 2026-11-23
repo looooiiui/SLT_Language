@@ -1,9 +1,7 @@
 /** 这里是SLT的内存分配器 */
-#pragma once
 #ifndef OBJECT_PTR_H
 #define OBJECT_PTR_H
 #define OBJECT_PTR_VERSION "1.0.0"
-#endif
 
 /** 自定义类，调试系统 */
 #include <debugSystem/debugSystem.h>
@@ -38,3 +36,5 @@ public:
     /** 指针常规操作 */
     void MovePtrTo(const ObjectPtr& other);     // 移动指针到其他指针管理器
 };
+
+#endif

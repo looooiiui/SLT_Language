@@ -9,22 +9,25 @@
 #include "lib/sltMap/SltMap.h"
 
 int main() {
-    SltLexer* lexer = new SltLexer();
-    /** 测试 lexer，给定源码 */
-    lexer->SetAnalysisText("num a = 5487; num test{ str b = \"haha\"; return 54 }");
-    lexer->GetLexerTokenVector();
-    /** 测试映射 */
-    SltMap<int, int>* sltMap = new SltMap<int, int>{
-        {10, 5},
-        {11, 4},
-        {10, 6}
-    };
-    
-    auto result = sltMap->Find(20);
-    std::cout << result.value_or(0);
-
-    /** 系统暂停 */
     SltDebugSystem* pDebugSystem = SltDebugSystem::GetInstance();
+    pDebugSystem->SetDebugSystemLogWriteEnable(false);
+    SltLexer* lexer = new SltLexer(SltDebugSystem::GetInstance());
+    /** 测试 lexer，给定源码 */
+    lexer->SetAnalysisText("   \r\n  \"nihao slt\" 547 num a = 5487; num test{ str b = \"haha\"; return 54 }");
+    lexer->GetLexerTokenVector();
+    
+    /** 测试映射 */
+    // SltMap<int, int>* sltMap = new SltMap<int, int>{
+    //     {10, 5},
+    //     {11, 4},
+    //     {10, 6}
+    // };
+    // auto result = sltMap->Find(11);
+    // size_t index = sltMap->FindKeyIndex(10);
+    // sltMap->Delete(11);
+    // sltMap->CheckExist(11);
+    // std::cout << result.value_or(0);
+    /** 系统暂停 */
     pDebugSystem->DebugSystemConsolePauseRun();
     delete lexer;
 
