@@ -23,8 +23,16 @@ enum class TokenType {
      */
     Number, String, KindNumber, KindString, Class,
     Ident,
-    If, Else, LParen, RParen, LBracket, RBracket, LCurlyBracket, RCurlyBacket, Semi,
-    Plus, Minus, Star, Slash,
+    /** 符号表逻辑 */
+    If, Else, LParen, RParen, LBracket, RBracket, LCurlyBracket, 
+    RCurlyBracket, Semicolon,
+    /* 符号表运算 */
+    Plus, Minus, Star, Slash, Inc, Dec, Assign,
+    Lt, Gt, Percent, Bang, Amp, Pipe, Caret,
+    Tilde, Comma, Dot, Colon, Question, Equal, NEqual,
+    LE, GE, Amp_Amp, Pipe_Pipe, Plue_Eq, Minus_Eq, Star_Eq,
+    Slash_Eq, Percent_Eq, Amp_Eq, Pipe_Eq, Caret_Eq, LShift, RShift,
+    /** 其他系统符号 */
     Eof,
 };
 
@@ -106,6 +114,8 @@ private:
     token ReadString();
     /** lexer解析标识符类型(其他乱七八糟的类型) */
     token ReadIdent();
+    /** lexer解析运算符号类型 */
+    token ReadOperator();
     /** 综合，结合所有切词类型，通用返回 */
     token NextToken();
     /** 语句切词器 */

@@ -13,7 +13,7 @@ int main() {
     pDebugSystem->SetDebugSystemLogWriteEnable(false);
     SltLexer* lexer = new SltLexer(SltDebugSystem::GetInstance());
     /** 测试 lexer，给定源码 */
-    lexer->SetAnalysisText("   \r\n  \"nihao slt\" 547 num a = 5487; num test{ str b = \"haha\"; return 54 }");
+    lexer->SetAnalysisText("   \r\n  \"nihao slt\" 547 num ++ a = 5487; num test{ str b = \"haha\"; return 54 }");
     lexer->GetLexerTokenVector();
     
     /** 测试映射 */

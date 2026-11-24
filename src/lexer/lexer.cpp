@@ -76,18 +76,102 @@ SltMap<std::string, TokenType>& GetTokenTypeCT(){
         {"str",             TokenType::KindString},
         {"if",              TokenType::If},
         {"else",            TokenType::Else},
-        {"class",           TokenType::Class}
+        {"class",           TokenType::Class},  
+        {"+",               TokenType::Plus},
+        {"-",               TokenType::Minus},
+        {"*",               TokenType::Star},
+        {"/",               TokenType::Slash},
+        {"(",               TokenType::LParen},
+        {")",               TokenType::RParen},
+        {"[",               TokenType::LBracket},
+        {"]",               TokenType::RBracket},
+        {"{",               TokenType::LCurlyBracket},
+        {"}",               TokenType::RCurlyBracket},
+        {"=",               TokenType::Assign},
+        {"<",               TokenType::Lt},
+        {">",               TokenType::Gt},
+        {"%",               TokenType::Percent},
+        {"!",               TokenType::Bang},
+        {"&",               TokenType::Amp},
+        {"|",               TokenType::Pipe},
+        {"^",               TokenType::Caret},
+        {"~",               TokenType::Tilde},
+        {",",               TokenType::Comma},
+        {";",               TokenType::Semicolon},
+        {".",               TokenType::Dot},
+        {"?",               TokenType::Question},
+        {":",               TokenType::Colon},
+        {"++",              TokenType::Inc},
+        {"--",              TokenType::Dec},
+        {"==",              TokenType::Equal},
+        {"!=",              TokenType::NEqual},
+        {"<=",              TokenType::LE},
+        {">=",              TokenType::GE},
+        {"&&",              TokenType::Amp_Amp},
+        {"||",              TokenType::Pipe_Pipe},
+        {"+=",              TokenType::Plue_Eq},
+        {"-=",              TokenType::Minus_Eq},
+        {"*=",              TokenType::Star_Eq},
+        {"/=",              TokenType::Slash_Eq},
+        {"%=",              TokenType::Percent_Eq},
+        {"&=",              TokenType::Amp_Eq},
+        {"|=",              TokenType::Pipe_Eq},
+        {"^=",              TokenType::Caret_Eq},
+        {"<<",              TokenType::LShift},
+        {">>",              TokenType::RShift}
     };
     return inst;
 }
 /** 词元类型映射表(词元类型->系统识别字符) */
 SltMap<TokenType, std::string>& GetTokenTypeTC(){
     static SltMap<TokenType, std::string> inst{
-        {TokenType::KindNumber,         "num"},
-        {TokenType::KindString,         "str"},
-        {TokenType::If,                 "if"},
-        {TokenType::Else,               "else"},
-        {TokenType::Class,              "class"}
+        {TokenType::KindNumber,       "num"},
+        {TokenType::KindString,       "str"},
+        {TokenType::If,               "if"},
+        {TokenType::Else,             "else"},
+        {TokenType::Class,            "class"},  
+        {TokenType::Plus,             "+"},
+        {TokenType::Minus,            "-"},
+        {TokenType::Star,             "*"},
+        {TokenType::Slash,            "/"},
+        {TokenType::LParen,           "("},
+        {TokenType::RParen,           ")"},
+        {TokenType::LBracket,         "["},
+        {TokenType::RBracket,         "]"},
+        {TokenType::LCurlyBracket,    "{"},
+        {TokenType::RCurlyBracket,    "}"},
+        {TokenType::Assign,           "="},
+        {TokenType::Lt,               "<"},
+        {TokenType::Gt,               ">"},
+        {TokenType::Percent,          "%"},
+        {TokenType::Bang,             "!"},
+        {TokenType::Amp,              "&"},
+        {TokenType::Pipe,             "|"},
+        {TokenType::Caret,            "^"},
+        {TokenType::Tilde,            "~"},
+        {TokenType::Comma,            ","},
+        {TokenType::Semicolon,        ";"},
+        {TokenType::Dot,              "."},
+        {TokenType::Question,         "?"},
+        {TokenType::Colon,            ":"},
+        {TokenType::Inc,              "++"},
+        {TokenType::Dec,              "--"},
+        {TokenType::Equal,            "=="},
+        {TokenType::NEqual,           "!="},
+        {TokenType::LE,               "<="},
+        {TokenType::GE,               ">="},
+        {TokenType::Amp_Amp,          "&&"},
+        {TokenType::Pipe_Pipe,        "||"},
+        {TokenType::Plue_Eq,          "+="},
+        {TokenType::Minus_Eq,         "-="},
+        {TokenType::Star_Eq,          "*="},
+        {TokenType::Slash_Eq,         "/="},
+        {TokenType::Percent_Eq,       "%="},
+        {TokenType::Amp_Eq,           "&="},
+        {TokenType::Pipe_Eq,          "|="},
+        {TokenType::Caret_Eq,         "^="},
+        {TokenType::LShift,           "<<"},
+        {TokenType::RShift,           ">>"},
     };
     return inst;
 }
@@ -394,7 +478,6 @@ token SltLexer::ReadIdent(){
                     true
                 );
             }
-
         }
         /** 检测退出条件: 含有空格跳跃字符类 */
         if (GetWhiteSpaceMappingCT().Find(currentChar).has_value()){
@@ -411,10 +494,85 @@ token SltLexer::ReadIdent(){
     std::optional<TokenType> mayerType = GetTokenTypeCT().Find(buf);
     /** 检查类型是否存在 */
     if (mayerType.has_value()){
-        /** 类型存在则内部分类 Token */
+        /** 类型存在则分配对应 Token */
+        TokenType type = mayerType.value();
+        return token(type, buf, startLine, startRow);
     }
-    /** 类型不存在则默认Token */
+    /** 类型不存在则默认返回Token(Ident)标识符 */
     return token(TokenType::Ident, buf, startLine, startRow);
+}
+
+/** lexer解析运算符 
+ * 比如 + - * / 等运算符号
+ * 这里就吃到二元符号
+*/
+token SltLexer::ReadOperator(){
+    /** 偏移标记，.不能作为数字的开头 */
+    size_t startOffset = m_sSourcePos.m_sOffset;
+    /** 起始行列记住，要放到返回值里面的 */
+    size_t startLine = m_sSourcePos.m_sLine;
+    size_t startRow = m_sSourcePos.m_iRow;
+    /** buf缓冲string */
+    std::string buf = "";
+    /** 这里只吃到二元符号 */
+    /** 获取当前字符输出 */
+    std::optional<unsigned char> originalChar = Peek();
+    /** 遇到不知道什么玩意的字符报错 */
+    if (!originalChar){
+        m_sDebugSystem->DebugSystemConsoleWrite(
+            "运算符Token读取",
+            "运算符非法: 检测到非字符输入",
+            DebugSystemKind::DEBUG_SYSTEM_ERROR,
+            true
+        );
+    }
+    /** 先吃掉当前的运算 */
+    Consume(false);
+    /** 再将当前运算符加入缓冲区 */
+    unsigned char currentChar = originalChar.value();
+    buf.push_back(currentChar);
+
+    /** 预吃下一个字符，用于检查是否是双运算符号 */
+    std::optional<unsigned char> secondOriginalChar = Peek(); 
+    /** 遇到不知道什么玩意的字符报错 */
+    if (!originalChar){
+        m_sDebugSystem->DebugSystemConsoleWrite(
+            "运算符Token读取",
+            "运算符非法: 检测到非字符输入",
+            DebugSystemKind::DEBUG_SYSTEM_ERROR,
+            true
+        );
+    }
+    /** 拼接优先检测双运算符号 */
+    unsigned char secondChar = secondOriginalChar.value();
+    /** 先拼接进去 */
+    buf.push_back(secondChar);
+    /** 用当前缓冲字符检查是否是双运算符 */
+    std::optional<TokenType> maybeType = GetTokenTypeCT().Find(buf);
+    /** 检查，如果有的话就用双字符 */
+    if (maybeType.has_value()){
+        TokenType returnType = maybeType.value();
+        /** 消费并返回双字符类型 */
+        Consume(false);
+        token returnToken = token(returnType, buf, startLine, startRow);
+        return returnToken;
+    }
+    /** 没有的话就返回单字符(除非单字符也查不到) */
+    buf.pop_back();
+    /** 先查单字符存在状态 */
+    maybeType = GetTokenTypeCT().Find(buf);
+    /** 如果没有则报错 */
+    if (!maybeType.has_value()){
+        m_sDebugSystem->DebugSystemConsoleWrite(
+            "运算符Token读取",
+            SltStream::MakeFormatString("运算符: ", buf, " 不存在"),
+            DebugSystemKind::DEBUG_SYSTEM_ERROR,
+            true
+        );
+    }
+    TokenType returnType = maybeType.value();
+    /** 有就返回 */
+    token returnToken = token(returnType, buf, startLine, startRow);
 }
 
 /** 读取下一Token */
@@ -453,8 +611,17 @@ token SltLexer::NextToken(){
     ){
         return ReadIdent();
     }
-
-    return token();
+    /** 返回符号类型(剩下的全是符号) */
+    else{
+        return ReadOperator();
+    }
+    // /** 啥都没匹配上就报错 */
+    // m_sDebugSystem->DebugSystemConsoleWrite(
+    //     "lexer/Token获取",
+    //     "未知字符",
+    //     DebugSystemKind::DEBUG_SYSTEM_ERROR,
+    //     true
+    // );
 }
 /** 对外启动Lexer切词器,返回Vector<token>* */
 std::vector<token>* SltLexer::GetLexerTokenVector(){
@@ -462,6 +629,7 @@ std::vector<token>* SltLexer::GetLexerTokenVector(){
     NextToken();
     NextToken();
     NextToken();
+    token token_now = NextToken();
     return &m_vTokenVector;
 }
 
