@@ -8,10 +8,13 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 file(GLOB_RECURSE HEADER_FILES
     "${PROJECT_SOURCE_DIR}/includes/*.h"
     "${PROJECT_SOURCE_DIR}/includes/*.hpp"
+    "${PROJECT_BINARY_DIR}/includes/utils/*.h"
+    "${PROJECT_BINARY_DIR}/includes/utils/*.cpp"
 )
 # 批量获取 src下面源文件
 file(GLOB_RECURSE SOURCE_FILES
     "${PROJECT_SOURCE_DIR}/src/*.cpp"
+    "${PROJECT_SOURCE_DIR}/src/utils/*.cpp"
 )
 
 # 将所有文件添加到可执行文件中

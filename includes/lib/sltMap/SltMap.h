@@ -29,7 +29,7 @@ private:
     /** 内部使用映射表 */
     std::vector<SltMapElement<TypeKey, TypeValue>> m_vElements;
     /** 调试系统 */
-    SltDebugSystem* m_sDebugSystem;
+    SltDebugSystem* m_pDebugSystem;
     /** 辅助记录，用于检查key是否被使用 */
     std::unordered_set<TypeKey> m_sKeySet;
     /** 按照索引删除映射 */
@@ -64,7 +64,7 @@ inline SltMap<TypeKey, TypeValue>::SltMap(
     /** 空值化集合 */
     m_sKeySet = {};
     /** 获得调试系统 */
-    m_sDebugSystem = o_sDebugSystem;
+    m_pDebugSystem = o_sDebugSystem;
     for (auto &&elem: list){
         /** 检查Key是否已经存在 */
         if (CheckExist(elem.m_tKey)){
@@ -81,7 +81,7 @@ inline bool SltMap<TypeKey, TypeValue>::CheckExist(const TypeKey &key) const{
     /** 检查key */
     if (m_sKeySet.count(key)){
         /** 调试系统提示 */
-        // m_sDebugSystem->DebugSystemConsoleWrite(
+        // m_pDebugSystem->DebugSystemConsoleWrite(
         //     "lib/SltMap/CheckExist",
         //     SltStream::MakeFormatString(
         //         "SltMap包含键值,Key: ",
@@ -104,7 +104,7 @@ inline std::optional<TypeValue> SltMap<TypeKey, TypeValue>::Find(const TypeKey &
         }
     }
     /** 无值状态返回 */
-    // m_sDebugSystem->DebugSystemConsoleWrite(
+    // m_pDebugSystem->DebugSystemConsoleWrite(
     //     "lib/SltMap/Find",
     //     SltStream::MakeFormatString(
     //         "SltMap不能找到key为",
@@ -124,7 +124,7 @@ inline size_t SltMap<TypeKey, TypeValue>::FindKeyIndex(const TypeKey &key) const
     for (auto const &elem : m_vElements){
         /** -1 索引开头,计算放开头 */
         if (elem.m_tKey == key){
-            // m_sDebugSystem->DebugSystemConsoleWrite(
+            // m_pDebugSystem->DebugSystemConsoleWrite(
             //     "lib/SltMap/FindKeyIndex",
             //     SltStream::MakeFormatString(
             //         "SltMap键值,Key: ",
@@ -140,7 +140,7 @@ inline size_t SltMap<TypeKey, TypeValue>::FindKeyIndex(const TypeKey &key) const
         index++;
     }
     /** 找不到索引,输出日志 */
-    // m_sDebugSystem->DebugSystemConsoleWrite(
+    // m_pDebugSystem->DebugSystemConsoleWrite(
     //     "lib/SltMap/FindKeyIndex",
     //     SltStream::MakeFormatString(
     //         "SltMap键值,Key: ",
@@ -159,7 +159,7 @@ inline bool SltMap<TypeKey, TypeValue>::Insert(const TypeKey &key, const TypeVal
     /** 先导检查映射表是否占用 */
     if (CheckExist(key)){
         /** 插入失败 */
-        // m_sDebugSystem->DebugSystemConsoleWrite(
+        // m_pDebugSystem->DebugSystemConsoleWrite(
         //     "lib/SltMap/Insert",
         //     SltStream::MakeFormatString("插入失败"),
         //     DebugSystemKind::DEBUG_SYSTEM_ERROR                
@@ -193,7 +193,7 @@ inline bool SltMap<TypeKey, TypeValue>::Delete(const TypeKey &key){
     /** 先导检查映射表是否存在 */
     if (keyIndex == SLTMAP_NOT_FOUND){
         /** 不存在映射 */
-        // m_sDebugSystem->DebugSystemConsoleWrite(
+        // m_pDebugSystem->DebugSystemConsoleWrite(
         //     "lib/SltMap/Insert",
         //     SltStream::MakeFormatString(
         //         "当前映射表不存在key: ",

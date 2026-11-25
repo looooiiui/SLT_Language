@@ -1,12 +1,11 @@
 /** SLT 定制流式处理 */
-#pragma once
 #ifndef SLT_STREAM_H
 #define SLT_STREAM_H
 #define SLT_STREAM_VERSION "1.0.0"
-#endif
-/** 乱七八糟的stream和系统类的导入 */
+/** 自带库的导入 */
 #include <sstream>
 #include <string>
+#include <vector>
 
 /** 这里是流式处理的主类 */
 class SltStream{
@@ -21,6 +20,9 @@ public:
     /** 最后获得格式化的字符串 */
     template<typename... Args>
     static std::string MakeFormatString(Args&&... args);
+    // /** 以字符串输出Vector */
+    // template<typename T>
+    // static std::string MakeFormatString(std::vector<T> vec);
     /** 将特殊字符转化为可以输出的特殊字符 */
     static std::string MakeOutPutChar(unsigned char normalChar);
 };
@@ -45,5 +47,4 @@ inline std::string SltStream::MakeFormatString(Args&&... args){
     return oss.str();
 }
 
-
-
+#endif
